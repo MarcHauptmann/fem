@@ -6,7 +6,7 @@ classdef LinearBasisFunction
     end
     
     methods
-        function self = LinearBasisFunction(left, center, right)
+        function self = LinearBasisFunction(left, center, right)            
             self.left = left;
             self.center = center;
             self.right = right;
