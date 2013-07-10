@@ -2,12 +2,12 @@ function fem
 a = 0;
 b = 3;
 ul = 0;
-ur = 0;
-n = 31;
+ur = 3;
+n = 7;
 x = linspace(a,b,n);
 h = (b-a)/(n-1)
 
-f = @(x) x.^2;
+f = @(x) ones(1,length(x));
 
 phi(1) = LinearBasisFunction(-1,0,1);
 phi(2) = LinearBasisFunction(0,1,2);
@@ -50,8 +50,8 @@ for i=1:n
                 K(i,j) = k(1,1) + k(2,2);
             end
         elseif i-j == -1
-            M(i,j) = m(1,2);
-            K(i,j) = k(1,2);
+            M(i,j) = m(2,1);
+            K(i,j) = k(2,1);
         end
     end
 end
@@ -59,11 +59,12 @@ end
 K
 M
 bvector
-A = K+M
 
-u(2:n-1)=A(2:n-1,2:n-1)\bvector(2:n-1);
-u(1) = 0;
-u(n) = 0;
+A = K+M;
+u=zeros(1,n);
+u(2:n-1)=A(2:n-1,2:n-1)\(bvector(2:n-1)-A(2:n-1,1)*ul-A(2:n-1,n)*ur);
+u(1) = ul;
+u(n) = ur;
 
 f = -1/(1+exp(3));
 y = f*exp(x)+(-f-1)*exp(-x)+1;
