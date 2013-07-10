@@ -3,9 +3,9 @@ a = 0;
 b = 3;
 ul = 0;
 ur = 3;
-n = 7;
+n = 31;
 x = linspace(a,b,n);
-h = (b-a)/(n-1)
+h = (b-a)/(n-1);
 
 f = @(x) ones(1,length(x));
 
@@ -37,7 +37,7 @@ K = zeros(n,n);
 for i=1:n    
     bvector(i) = quadgk(@(x) f(x) .* phiGlob(i).evaluate(x), a, b);
         
-    for j = 1:n
+    parfor j = 1:n
         if i-j == 1
             M(i,j) = m(1,2);
             K(i,j) = k(1,2);
@@ -56,15 +56,20 @@ for i=1:n
     end
 end
 
-K
-M
-bvector
-
 A = K+M;
-u=zeros(1,n);
-u(2:n-1)=A(2:n-1,2:n-1)\(bvector(2:n-1)-A(2:n-1,1)*ul-A(2:n-1,n)*ur);
-u(1) = ul;
-u(n) = ur;
+
+bvector = bvector-A(:,1)*ul-A(:,n)*ur;
+bvector(1) = ul;
+bvector(n) = ur;
+
+A(1,2:n) = zeros(1,n-1);
+A(:,1) = zeros(n,1);
+A(:,n) = zeros(n,1);
+A(n,2:n) = zeros(1,n-1);
+A(1,1) = 1;
+A(n,n) = 1;
+
+u=A\bvector;
 
 f = -1/(1+exp(3));
 y = f*exp(x)+(-f-1)*exp(-x)+1;
