@@ -21,7 +21,7 @@ function globalMatrix = createMatrix(localMatrix, geomMatrix, h)
     globalMatrix = zeros(n);
     
     for i = 1:n
-        parfor j = 1:n
+        for j = 1:n
             [rows1, cols1] = find(geomMatrix == i);
             [rows2, cols2] = find(geomMatrix == j);
             

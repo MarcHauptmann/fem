@@ -7,7 +7,7 @@ b = 1;
 ul = 0;
 ur = 0;
 
-n = 5;
+n = 6;
 h = 1/(n-1);
 x = linspace(a, b, n);
 
@@ -44,13 +44,7 @@ factor = -1/(1+exp(1));
 y = factor*exp(xExact)+(-factor-1)*exp(-xExact)+1;
 
 % Basisfunktionen
-Phi = zeros(length(xExact), n);
-
-for i=1:n
-    phi = LinearBasisFunction(x(i)-h, x(i), x(i)+h);
-    
-    Phi(:,i) = phi.evaluate(xExact);
-end
+Phi = createBasis({@(x) 1-x, @(x) x}, x, xExact, B);
 
 % plotten
 plot(xExact, Phi*u, xExact, y);
