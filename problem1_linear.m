@@ -34,7 +34,7 @@ A = M+K;
 fb = createVector(basis, B, elements, @(x) x.^2);
 
 % Randbedingungen beachten
-[A, fb] = dirichletBoundary(A, fb, ul, ur);
+[A, fb] = dirichletBoundary(A, fb, [1, n], [ul, ur]);
 
 % lösen
 u = A\fb;

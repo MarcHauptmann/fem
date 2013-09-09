@@ -1,5 +1,6 @@
 function problem1_quadratic
 % löst -u'' + u = 1 mit quadratischen Basisfunktionen
+% hier gibt es noch einen Fehler
 
 a = 0;
 b = 1;
@@ -40,10 +41,10 @@ A = M+K;
 fb = createVector(basis, B, elements, @(x) x.^2);
 
 % Randbedingungen beachten
-[A, fb] = dirichletBoundary(A, fb, ul, ur);
+[A, fb] = dirichletBoundary(A, fb, [1, n], [ul, ur]);
 
 % lösen
-u = A\fb;
+u = A\fb
 
 % exakte Lösung
 x = linspace(a, b, 1000);
