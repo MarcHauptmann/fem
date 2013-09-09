@@ -7,7 +7,7 @@ b = 1;
 ul = 0;
 ur = 0.1;
 
-n = 5;
+n = 10;
 h = 1/(n-1);
 elements = linspace(a, b, n);
 
@@ -41,7 +41,7 @@ A = M+K;
 fb = createVector(basis, B, elements, @(x) x.^2);
 
 % Randbedingungen beachten
-[A, fb] = dirichletBoundary(A, fb, [1, n], [ul, ur]);
+[A, fb] = dirichletBoundary(A, fb, [1, 2*n-1], [ul, ur]);
 
 % lösen
 u = A\fb
