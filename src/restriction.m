@@ -1,17 +1,13 @@
 function R = restriction(d)
 %RESTRICTION Erstellt eine Restriktionsmatrix
 
-    R = zeros(d/2+1,d+1);
-    k = d/2+1;
+    k = (d-1)/2;
+
+    R = zeros(k,d);
     
-    for i=1:k
-        if i == 1
-            R(i,1:2) = [1 0.5];
-        elseif i == k
-            R(i,d:d+1) = [0.5 1];
-        else
-            R(i,2*(i-1):2*(i-1)+2) = [0.5 1 0.5];
-        end
+    for i = 1:k
+        index = (i-1)*2+1;
+        R(i, index:index+2) = [0.5 1 0.5];
     end
 end
 

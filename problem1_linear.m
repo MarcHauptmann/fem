@@ -6,7 +6,7 @@ b = 1;
 ul = 0;
 ur = 0.1;
 
-n = 5;
+n = 511;
 h = 1/(n-1);
 elements = linspace(a, b, n);
 
@@ -26,6 +26,8 @@ parfor i=1:n-1
 end
 
 % Assemblierung
+tic
+
 M = createMatrix(m, B, h);
 K = createMatrix(k, B, 1/h);
 
@@ -39,8 +41,10 @@ fb = createVector(basis, B, elements, @(x) x.^2);
 % lösen
 u = A\fb;
 
+toc
+
 % exakte Lösung
-x = linspace(a, b, 1000);
+x = linspace(a, b, 2000);
 y = (exp(1-x).*(exp(1)*ul - ur - 2*exp(1) + 3))/(exp(2)-1) ...
     + (exp(x).*(-ul + exp(1)*ur - 3*exp(1) + 2))/(exp(2)-1) + x.^2 + 2;
 
@@ -50,3 +54,5 @@ Phi = createBasis(basis, elements, x, B);
 % plotten
 plot(x, Phi*u, x, y);
 legend('Näherung', 'exakt', 'location', 'Best');
+
+fprintf('Fehler: %s\n', norm(Phi*u - y'));
