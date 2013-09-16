@@ -9,37 +9,31 @@ function globalMatrix = createMatrix(localMatrix, geomMatrix, h)
         h = 1;
     end
     
-    n = max(max(geomMatrix));
-    m = size(geomMatrix, 1);
+    n = max(max(geomMatrix));               % Anzahl der globalen Basisfunktionen
+    elementCount = size(geomMatrix, 1);     % Anzahl der Elemente
+    functionCount = size(geomMatrix, 2);    % Anzahl der lokalen Basisfunktionen
     
+    % Faktoren (Länge) der Elemente
     if length(h) == 1
-        hVector = h * ones(m,1);
+        hVector = h * ones(elementCount,1);
     else
         hVector = h;
     end
     
     globalMatrix = zeros(n);
     
-    for i = 1:n
-        for j = 1:n
-            [rows1, cols1] = find(geomMatrix == i);
-            [rows2, cols2] = find(geomMatrix == j);
-            
-            rows = intersect(rows1, rows2);
-            
-            value = 0;
+    
+    
+    for elementIndex = 1:elementCount
+        for localPhi1 = 1:functionCount
+            for localPhi2 = 1:functionCount
+                phi1 = geomMatrix(elementIndex, localPhi1);
+                phi2 = geomMatrix(elementIndex, localPhi2);
 
-            for k = 1:length(rows)
-                elementIndex = rows(k);
+                value = hVector(elementIndex) * localMatrix(localPhi1, localPhi2);
 
-                iindex = find(geomMatrix(elementIndex,:) == i);
-                jindex = find(geomMatrix(elementIndex,:) == j);
-
-                value = value + hVector(elementIndex) * localMatrix(iindex, jindex);
+                globalMatrix(phi1, phi2) = globalMatrix(phi1, phi2) + value;
             end
-
-            globalMatrix(i, j) = value;
         end
     end
 end
-
