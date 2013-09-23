@@ -6,7 +6,7 @@ b = 1;
 ul = 0;
 ur = 0.1;
 
-n = 2046;
+n = 512;
 elements = linspace(a, b, n+1);
 h = 1/n;
 
@@ -39,33 +39,15 @@ fb = createVector(basis, B, linspace(a, b, n+1), @(x) x.^2);
 [A, fb] = dirichletBoundary(A, fb, [1, n+1], [ul, ur]);
 
 % lösen
-function u=solve(A, b, level)
-    dim = length(b);
-    u = zeros(dim,1);
-    
-    fprintf('level %d\n', level)
-    
-    if level == 1
-        u = A\b;
-    else
-        [Dinv, L, R] = jacobiDecompose(A);
-        
-        for i=1:3
-            u = Dinv*(b-(L+R)*u);
-        end
+u = multigridSolve(A, fb, ceil(log2(n)));
 
-        r = restriction(dim);
-        p = r';
-        
-        u = u + p * solve(r*A*p, r*(b - A*u), level-1);
+% u = multigridSolve(A, fb, 4);
 
-        for i=1:5
-            u = Dinv*(b-(L+R)*u);
-        end
-    end
-end
-
-u = solve(A, fb, log2(n+2)-6);
+% [Dinv, L, R] = jacobiDecompose(A);
+% 
+% for i=1:5000
+%     u = Dinv*(fb-(L+R)*u);
+% end
 
 toc
 
