@@ -6,7 +6,7 @@ b = 1;
 ul = 0;
 ur = 0;
 
-n = 20;
+n = 4;
 h = 1/(n-1);
 elements = linspace(a, b, n);
 
@@ -33,10 +33,10 @@ K = createMatrix(k, B, 1/h);
 
 A = [M K'; K zeros(n)];
 
-fb = [zeros(n,1); -createVector(basis, B, elements, @(x) 1)];
+fb = [zeros(n,1); -createVector(basis, B, elements, @(x) -1)];
 
 % Randbedingungen beachten
-[A, fb] = dirichletBoundary(A, fb, [n+1, 2*n], [ul, ur]);
+[A, fb] = dirichletBoundary(A, fb, [n+1, 2*n], [ul, ur])
 
 % lösen
 solution = A\fb;
