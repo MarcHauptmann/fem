@@ -11,11 +11,14 @@ function bem_square
 %      *------------*
 % (0,0)    bottom    (1,0)
 
+% rechte Seite
+f = @(x,y) sin(2*x*pi);
+
 % Randwerte
-u_bottom = @(x, y) sin(x*pi);
-u_right = @(x, y) sin(x*pi);
-u_top = @(x, y) sin(x*pi);
-u_left = @(x, y) sin(x*pi);
+u_bottom = @(x, y) 0.1*x;
+u_right = @(x, y) 0.1*ones(size(x));
+u_top = @(x, y) 0.1*x;
+u_left = @(x, y) zeros(size(x));
 
 n = 4;
 
@@ -71,8 +74,6 @@ for i=1:4*n
     end
 end
 
-u
-
 % Schleife über die Randpunkte
 for i=1:4*n
     xi_x = xi(i, 1);
@@ -101,10 +102,24 @@ for i=1:4*n
     end
 end
 
-q=G\(H+0.5*eye(4*n))*u;
+b = zeros(4*n,1);
+
+for i=1:4*n
+    xi_x = xi(i, 1);
+    xi_y = xi(i, 2);
+    
+    b(i) = quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 1, 0, 1);
+end
+
+b
+
+I = eye(4*n);
+right = (H + 0.5*I) * u - b;
+
+q=G\right;
 
 %% Lösung für innere Punkte
-np = 15;
+np = 20;
 
 [lx, ly] = meshgrid(linspace(0,1,np), linspace(0,1,np));
 
@@ -146,7 +161,7 @@ for i = 2:np-1
             end
         end
         
-        z(i,j) = g*q-h*u;
+        z(i,j) = g*q-h*u + quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 1, 0, 1);
     end
 end
 
