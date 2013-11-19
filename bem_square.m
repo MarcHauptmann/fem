@@ -88,7 +88,7 @@ H(3,2) = quadgk(@(y) dustar(1, y, 0.5, 1, 1, 0), 0, 1);
 G(3,2) = quadgk(@(y) ustar(1, y, 0.5, 1), 0, 1);
 
 % drittes Element
-H(3,3) = quadgk(@(x) -dustar(x, 1, 0.5, 1, 0, 1), 1, 0) + 0.5*u_right(0.5, 1);
+H(3,3) = quadgk(@(x) -dustar(x, 1, 0.5, 1, 0, 1), 1, 0) + 0.5*u_top(0.5, 1);
 G(3,3) = quadgk(@(x) -ustar(x, 1, 0.5, 1), 1, 0);
 
 % viertes Element
@@ -111,7 +111,7 @@ H(4,3) = quadgk(@(x) -dustar(x, 1, 0, 0.5, 0, 1), 1, 0);
 G(4,3) = quadgk(@(x) -ustar(x, 1, 0, 0.5), 1, 0);
 
 % viertes Element
-H(4,4) = quadgk(@(y) -dustar(0, y, 0, 0.5, -1, 0), 1, 0) + 0.5*u_right(0, 0.5);
+H(4,4) = quadgk(@(y) -dustar(0, y, 0, 0.5, -1, 0), 1, 0) + 0.5*u_left(0, 0.5);
 G(4,4) = quadgk(@(y) -ustar(0, y, 0, 0.5), 1, 0);
 
 q=G\(H*u);
