@@ -70,11 +70,6 @@ for i=1:4*n
     end
 end
 
-% Basisfunktionen
-for i = 1:4*n
-    phi{i} = @(t) t >= xi(i, 4) & t <= xi(i, 5); 
-end
-
 % Schleife über die Randpunkte
 for i=1:4*n
     xi_x = xi(i, 1);
@@ -83,28 +78,30 @@ for i=1:4*n
     % Schleife über die Basisfunktionen
     for j = 1:4*n
         side = xi(j, 3);
+        a = xi(j, 4);
+        b = xi(j, 5);
         
         switch side
             case 1
-                H(i,j) = quadgk(@(x) phi{j}(x) .* dustar(x, 0, xi_x, xi_y, 0, -1), 0, 1) ...
+                H(i,j) = quadgk(@(x) dustar(x, 0, xi_x, xi_y, 0, -1), a, b) ...
                     + (i == j) * (0.5*u_bottom(xi_x, xi_y));
                 
-                G(i,j) = quadgk(@(x) phi{j}(x) .* ustar(x, 0, xi_x, xi_y), 0, 1);
+                G(i,j) = quadgk(@(x) ustar(x, 0, xi_x, xi_y), a, b);
             case 2
-                H(i,j) = quadgk(@(y) phi{j}(y) .* dustar(1, y, xi_x, xi_y, 1, 0), 0, 1) ... 
+                H(i,j) = quadgk(@(y) dustar(1, y, xi_x, xi_y, 1, 0), a, b) ... 
                     + (i == j) * (0.5*u_right(xi_x, xi_y));
                 
-                G(i,j) = quadgk(@(y) phi{j}(y) .* ustar(1, y, xi_x, xi_y), 0, 1);
+                G(i,j) = quadgk(@(y) ustar(1, y, xi_x, xi_y), a, b);
             case 3
-                H(i,j) = quadgk(@(x) phi{j}(x) .* dustar(x, 1, xi_x, xi_y, 0, 1), 0, 1) ...
+                H(i,j) = quadgk(@(x) dustar(x, 1, xi_x, xi_y, 0, 1), a, b) ...
                     + (i == j) * (0.5*u_top(xi_x, xi_y));
                 
-                G(i,j) = quadgk(@(x) phi{j}(x) .* ustar(x, 1, xi_x, xi_y), 0, 1);
+                G(i,j) = quadgk(@(x) ustar(x, 1, xi_x, xi_y), a, b);
             case 4
-                H(i,j) = quadgk(@(y) phi{j}(y) .* dustar(0, y, xi_x, xi_y, -1, 0), 0, 1) ...
+                H(i,j) = quadgk(@(y) dustar(0, y, xi_x, xi_y, -1, 0), a, b) ...
                     + (i == j) * (0.5*u_left(xi_x, xi_y));
                 
-                G(i,j) = quadgk(@(y) phi{j}(y) .* ustar(0, y, xi_x, xi_y), 0, 1);
+                G(i,j) = quadgk(@(y) ustar(0, y, xi_x, xi_y), a, b);
         end
     end
 end
@@ -133,20 +130,22 @@ for i = 2:np-1
 
         for k = 1:4*n
             side = xi(k, 3);
+            a = xi(k, 4);
+            b = xi(k, 5);
             
             switch side
                 case 1
-                    z(i,j) = z(i,j) + q(k) * quadgk(@(x) phi{k}(x) .* ustar(x, 0, xi_x, xi_y), 0, 1) ...
-                            - u(k) * quadgk(@(x) phi{k}(x) .* dustar(x, 0, xi_x, xi_y,  0, -1), 0, 1);
+                    z(i,j) = z(i,j) + q(k) * quadgk(@(x) ustar(x, 0, xi_x, xi_y), a, b) ...
+                            - u(k) * quadgk(@(x) dustar(x, 0, xi_x, xi_y,  0, -1), a, b);
                 case 2
-                    z(i,j) = z(i,j) + q(k) * quadgk(@(y) phi{k}(y) .* ustar(1, y, xi_x, xi_y), 0, 1) ...
-                            - u(k) * quadgk(@(y) phi{k}(y) .* dustar(1, y, xi_x, xi_y,  1,  0), 0, 1);
+                    z(i,j) = z(i,j) + q(k) * quadgk(@(y) ustar(1, y, xi_x, xi_y), a, b) ...
+                            - u(k) * quadgk(@(y) dustar(1, y, xi_x, xi_y,  1,  0), a, b);
                 case 3
-                    z(i,j) = z(i,j) + q(k) * quadgk(@(x) phi{k}(x) .* ustar(x, 1, xi_x, xi_y), 0, 1) ...
-                            - u(k) * quadgk(@(x) phi{k}(x) .* dustar(x, 1, xi_x, xi_y,  0,  1), 0, 1);
+                    z(i,j) = z(i,j) + q(k) * quadgk(@(x) ustar(x, 1, xi_x, xi_y), a, b) ...
+                            - u(k) * quadgk(@(x) dustar(x, 1, xi_x, xi_y,  0,  1), a, b);
                 case 4
-                    z(i,j) = z(i,j) + q(k) * quadgk(@(y) phi{k}(y) .* ustar(0, y, xi_x, xi_y), 0, 1) ...
-                            - u(k) * quadgk(@(y) phi{k}(y) .* dustar(0, y, xi_x, xi_y, -1,  0), 0, 1);
+                    z(i,j) = z(i,j) + q(k) * quadgk(@(y) ustar(0, y, xi_x, xi_y), a, b) ...
+                            - u(k) * quadgk(@(y) dustar(0, y, xi_x, xi_y, -1,  0), a, b);
             end
         end
     end
