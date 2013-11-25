@@ -13,15 +13,15 @@ function bem_square
 
 % rechte Seite
     function int = intF(xi_x, xi_y) 
-        f = @(x,y) sin(2*x*pi);
+        f = @(x,y) sin(1*x*pi);
         
-        int = quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 1, 0, 1);
+        int = quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 2, 0, 1);
     end
 
 % Punkte des Polygons
 border = Polygon([ 0 0
-                   1 0
-                   1 1
+                   2 0
+                   2 1
                    0 1 ]);
        
 % Normalenvektoren
@@ -32,11 +32,11 @@ normal = [  0 -1
        
 % Randwerte
 g = { @(x, y) 0.1*x 
-      @(x, y) 0.1*ones(size(x)) 
+      @(x, y) 0.2*ones(size(x)) 
       @(x, y) 0.1*x 
       @(x, y) zeros(size(x)) };
 
-n = 2;
+n = 4;
 
 %% Fundamentallösung
     function z = ustar(x, y, xi_x, xi_y)
@@ -115,7 +115,7 @@ q=G\right;
 %% Lösung für innere Punkte
 np = 20;
 
-[lx, ly] = meshgrid(linspace(0,1,np), linspace(0,1,np));
+[lx, ly] = meshgrid(linspace(0,2,np), linspace(0,1,np));
 
 z = zeros(size(lx));
 
