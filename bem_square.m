@@ -12,15 +12,31 @@ function bem_square
 % (0,0)    bottom    (1,0)
 
 % rechte Seite
-f = @(x,y) sin(2*x*pi);
+    function int = intF(xi_x, xi_y) 
+        f = @(x,y) sin(2*x*pi);
+        
+        int = quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 1, 0, 1);
+    end
 
+% Punkte des Polygons
+border = Polygon([ 0 0
+                   1 0
+                   1 1
+                   0 1 ]);
+       
+% Normalenvektoren
+normal = [  0 -1
+            1  0
+            0  1
+           -1  0 ];
+       
 % Randwerte
-g{1} = @(x, y) 0.1*x;
-g{2} = @(x, y) 0.1*ones(size(x));
-g{3} = @(x, y) 0.1*x;
-g{4} = @(x, y) zeros(size(x));
+g = { @(x, y) 0.1*x 
+      @(x, y) 0.1*ones(size(x)) 
+      @(x, y) 0.1*x 
+      @(x, y) zeros(size(x)) };
 
-n = 4;
+n = 2;
 
 %% Fundamentallösung
     function z = ustar(x, y, xi_x, xi_y)
@@ -45,66 +61,53 @@ xi = zeros(4*n, 5);
 
 tic
 
-for i=1:n
+for side = 1:border.edgeCount
+    xi_index = (side-1)*n+(1:n);
+    
     width = 1/n;
     offset = width/2;
     
-    t = offset+(i-1)*width;
+    t = offset+((1:n)-1)*width;
     
-    %              x y Seite   start     end
-    xi(i,:)     = [t 0   1   t-offset t+offset];
-    xi(n+i,:)   = [1 t   2   t-offset t+offset];
-    xi(2*n+i,:) = [t 1   3   t-offset t+offset];
-    xi(3*n+i,:) = [0 t   4   t-offset t+offset];
+    xi(xi_index,:) = [border.pos(t, side) side*ones(n,1) t'-offset t'+offset];
 end
 
 % Randwerte
-for i=1:4*n
+for i=1:border.edgeCount*n
     side = xi(i, 3);
     
     u(i) = g{side}(xi(i,1), xi(i,2));
 end
 
 % Schleife über die Randpunkte
-for i=1:4*n
+for i = 1:border.edgeCount*n
     xi_x = xi(i, 1);
     xi_y = xi(i, 2);
     
     % Schleife über die Basisfunktionen
-    for j = 1:4*n
+    for j = 1:size(xi, 1)
         side = xi(j, 3);
         a = xi(j, 4);
         b = xi(j, 5);
+
+        n_x = normal(side, 1);
+        n_y = normal(side, 2);
         
-        switch side
-            case 1
-                H(i,j) = quadgk(@(x) dustar(x, 0, xi_x, xi_y, 0, -1), a, b);
-                G(i,j) = quadgk(@(x) ustar(x, 0, xi_x, xi_y), a, b);
-            case 2
-                H(i,j) = quadgk(@(y) dustar(1, y, xi_x, xi_y, 1, 0), a, b);
-                G(i,j) = quadgk(@(y) ustar(1, y, xi_x, xi_y), a, b);
-            case 3
-                H(i,j) = quadgk(@(x) dustar(x, 1, xi_x, xi_y, 0, 1), a, b);
-                G(i,j) = quadgk(@(x) ustar(x, 1, xi_x, xi_y), a, b);
-            case 4
-                H(i,j) = quadgk(@(y) dustar(0, y, xi_x, xi_y, -1, 0), a, b);
-                G(i,j) = quadgk(@(y) ustar(0, y, xi_x, xi_y), a, b);
-        end
+        H(i,j) = border.speed(side) * quadgk(@(t) dustar(border.x(t, side), border.y(t, side), xi_x, xi_y, n_x, n_y), a, b);
+        G(i,j) = border.speed(side) * quadgk(@(t) ustar(border.x(t, side), border.y(t, side), xi_x, xi_y), a, b);
     end
 end
 
-b = zeros(4*n,1);
+b = zeros(border.edgeCount*n,1);
 
 for i=1:4*n
     xi_x = xi(i, 1);
     xi_y = xi(i, 2);
     
-    b(i) = quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 1, 0, 1);
+    b(i) = intF(xi_x, xi_y);
 end
 
-b
-
-I = eye(4*n);
+I = eye(border.edgeCount*n);
 right = (H + 0.5*I) * u - b;
 
 q=G\right;
@@ -136,23 +139,14 @@ for i = 2:np-1
             a = xi(k, 4);
             b = xi(k, 5);
             
-            switch side
-                case 1
-                    g(k) = quadgk(@(x) ustar(x, 0, xi_x, xi_y), a, b);
-                    h(k) = quadgk(@(x) dustar(x, 0, xi_x, xi_y,  0, -1), a, b);
-                case 2
-                    g(k) = quadgk(@(y) ustar(1, y, xi_x, xi_y), a, b);
-                    h(k) = quadgk(@(y) dustar(1, y, xi_x, xi_y,  1,  0), a, b);
-                case 3
-                    g(k) = quadgk(@(x) ustar(x, 1, xi_x, xi_y), a, b);
-                    h(k) = quadgk(@(x) dustar(x, 1, xi_x, xi_y,  0,  1), a, b);
-                case 4
-                    g(k) = quadgk(@(y) ustar(0, y, xi_x, xi_y), a, b);
-                    h(k) = quadgk(@(y) dustar(0, y, xi_x, xi_y, -1,  0), a, b);
-            end
+            n_x = normal(side, 1);
+            n_y = normal(side, 2);
+            
+            g(k) = quadgk(@(t) border.speed(side) * ustar(border.x(t, side), border.y(t, side), xi_x, xi_y), a, b);
+            h(k) = quadgk(@(t) border.speed(side) * dustar(border.x(t, side), border.y(t, side), xi_x, xi_y,  n_x, n_y), a, b);
         end
         
-        z(i,j) = g*q-h*u + quad2d(@(x,y) f(x,y).*ustar(x, y, xi_x, xi_y), 0, 1, 0, 1);
+        z(i,j) = g*q-h*u + intF(xi_x, xi_y);
     end
 end
 
