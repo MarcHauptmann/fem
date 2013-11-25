@@ -15,10 +15,10 @@ function bem_square
 f = @(x,y) sin(2*x*pi);
 
 % Randwerte
-u_bottom = @(x, y) 0.1*x;
-u_right = @(x, y) 0.1*ones(size(x));
-u_top = @(x, y) 0.1*x;
-u_left = @(x, y) zeros(size(x));
+g{1} = @(x, y) 0.1*x;
+g{2} = @(x, y) 0.1*ones(size(x));
+g{3} = @(x, y) 0.1*x;
+g{4} = @(x, y) zeros(size(x));
 
 n = 4;
 
@@ -62,16 +62,7 @@ end
 for i=1:4*n
     side = xi(i, 3);
     
-    switch side
-        case 1
-            u(i) = u_bottom(xi(i,1), xi(i,2));
-        case 2
-           u(i) = u_right(xi(i,1), xi(i,2));
-        case 3
-           u(i) = u_top(xi(i,1), xi(i,2));
-        case 4
-           u(i) = u_left(xi(i,1), xi(i,2));
-    end
+    u(i) = g{side}(xi(i,1), xi(i,2));
 end
 
 % Schleife über die Randpunkte
@@ -126,10 +117,10 @@ np = 20;
 z = zeros(size(lx));
 
 % Randwerte übernehmen
-z(1,:) = u_bottom(lx(1,:), ly(1,:));
-z(np,:) = u_top(lx(np,:), ly(np,:));
-z(:,1) = u_left(lx(:,1), ly(:,1));
-z(:,np) = u_right(lx(:,np), ly(:,np));
+z(1,:) = g{1}(lx(1,:), ly(1,:));
+z(np,:) = g{3}(lx(np,:), ly(np,:));
+z(:,1) = g{4}(lx(:,1), ly(:,1));
+z(:,np) = g{2}(lx(:,np), ly(:,np));
     
 % Werte innen berechnen
 for i = 2:np-1
